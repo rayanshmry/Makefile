@@ -1,23 +1,27 @@
-# تحديد بنية المعالج (للآيفون)
-ARCHS = arm64 arm64e
+name: Build MoustacheMod
 
-# تحديد إصدار الـ SDK
-TARGET = iphone:clang:latest:14.0
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
 
-# استدعاء الإعدادات الأساسية للـ Theos
-include $(THEOS)/makefiles/common.mk
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container:
+      image: theos/theos:latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
 
-# اسم الأداة (تأكد أن هذا الاسم يطابق اسم مشروعك)
-TWEAK_NAME = MoustacheMod
-
-# ملف الكود الرئيسي
-MoustacheMod_FILES = main.mm
-
-# المكتبات (Frameworks) التي يحتاجها الكود
-MoustacheMod_FRAMEWORKS = UIKit QuartzCore CoreGraphics
-
-# إعدادات إضافية للتأكد من ربط المكتبات بشكل صحيح
-MoustacheMod_CFLAGS = -fobjc-arc
-
-# إنهاء الملف
-include $(THEOS_MAKE_PATH)/tweak.mk
+      - name: Build Tweak
+        run: |
+          make clean
+          make package
+          
+      - name: Upload .deb Package
+        uses: actions/upload-artifact@v4
+        with:
+          name: MoustacheMod-Package
+          path: packages/*.deb
