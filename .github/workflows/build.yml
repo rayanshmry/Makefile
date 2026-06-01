@@ -1,6 +1,10 @@
-name: Build Tweak
+name: Build MoustacheMod
 
-on: [push, pull_request]
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
 
 jobs:
   build:
@@ -8,16 +12,21 @@ jobs:
     container:
       image: theos/theos:latest
     steps:
-      - name: Checkout code
+      - name: Checkout Code
         uses: actions/checkout@v3
 
+      - name: Setup Environment
+        run: |
+          # التأكد من وجود المجلدات الضرورية
+          mkdir -p .theos/obj/debug
+          
       - name: Build Tweak
         run: |
-          # تثبيت الأدوات اللازمة إذا لزم الأمر
+          # عملية البناء الرئيسية
           make clean
           make package
           
-      - name: Upload artifact
+      - name: Upload .deb Package
         uses: actions/upload-artifact@v3
         with:
           name: MoustacheMod-Package
