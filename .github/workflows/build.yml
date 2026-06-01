@@ -1,31 +1,24 @@
-name: Build Moustache Mod Menu
+name: Build Tweak
 
-on:
-  push:
-    branches: [ main, master ]
-  workflow_dispatch:
+on: [push, pull_request]
 
 jobs:
   build:
-    runs-on: macos-13
+    runs-on: ubuntu-latest
+    container:
+      image: theos/theos:latest
     steps:
-    - name: Checkout Repository
-      uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-    - name: Set up Environment
-      run: |
-        brew install ldid xz
-        git clone --recursive https://github.com ~/theos
-        git clone https://github.com ~/theos/sdks
-
-    - name: Compile Package
-      run: |
-        export THEOS=~/theos
-        export PATH=~/theos/bin:$PATH
-        make package FINALPACKAGE=1
-
-    - name: Upload Artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: MoustacheMenu-DEB
-        path: packages/*.deb
+      - name: Build Tweak
+        run: |
+          # تثبيت الأدوات اللازمة إذا لزم الأمر
+          make clean
+          make package
+          
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: MoustacheMod-Package
+          path: packages/*.deb
